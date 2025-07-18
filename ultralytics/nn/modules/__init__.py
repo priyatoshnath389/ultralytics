@@ -16,7 +16,7 @@ Examples:
     >>> torch.onnx.export(m, x, f)
     >>> os.system(f"onnxslim {f} {f} && open {f}")  # pip install onnxslim
 """
-from .cbam import CBAM
+from .cbam import CBAM, ChannelAttention, SpatialAttention
 from .block import (
     C1,
     C2,
