@@ -17,6 +17,7 @@ Examples:
     >>> os.system(f"onnxslim {f} {f} && open {f}")  # pip install onnxslim
 """
 from .cbam import CBAM, ChannelAttention, SpatialAttention
+from .swin import SwinTinyBackbone
 from .block import (
     C1,
     C2,
