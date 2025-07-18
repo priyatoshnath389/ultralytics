@@ -18,7 +18,7 @@ backbone:
 
 head:
   # Run Detect on that single fused feature map
-  - [[3], 1, Detect, [nc, [512]]]
+  - [[4], 1, Detect, [nc, [512]]]
 
 detection_config:
   anchors:
