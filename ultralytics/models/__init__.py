@@ -5,5 +5,7 @@ from .nas import NAS
 from .rtdetr import RTDETR
 from .sam import SAM
 from .yolo import YOLO, YOLOE, YOLOWorld
+from ultralytics.nn.modules.cbam import CBAM
+
 
 __all__ = "YOLO", "RTDETR", "SAM", "FastSAM", "NAS", "YOLOWorld", "YOLOE"  # allow simpler import
