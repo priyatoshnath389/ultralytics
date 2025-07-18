@@ -1673,7 +1673,36 @@ def parse_model(d, ch, verbose=True):
             else getattr(__import__("torchvision").ops, m[16:])
             if "torchvision.ops." in m
             else globals()[m]
-        )  # get module
+        ) 
+         if m == "CBAM":
+            module_cls = CBAM
+
+        # Parse any string arguments
+        for j, a in enumerate(args):
+            if isinstance(a, str):
+                with contextlib.suppress(ValueError):
+                    args[j] = locals()[a] if a in locals() else ast.literal_eval(a)
+
+        # Depth scaling
+        n_ = n
+        n = max(round(n * depth), 1) if n > 1 else n
+
+        # Channel logic…
+        if module_cls in base_modules:
+            c1, c2 = ch[f], args[0]
+            # … [rest of your base_modules handling unchanged] …
+        # … [all other elif branches unchanged] …
+
+        # Instantiate (with repeats)
+        m_ = (
+            torch.nn.Sequential(*(module_cls(*args) for _ in range(n)))
+            if n > 1
+            else module_cls(*args)
+        )
+
+        # … [attach metadata and append to layers/save lists] …
+
+    return torch.nn.Sequential(*layers), sorted(save)
         for j, a in enumerate(args):
             if isinstance(a, str):
                 with contextlib.suppress(ValueError):
