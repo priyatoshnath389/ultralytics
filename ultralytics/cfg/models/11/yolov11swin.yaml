@@ -1,37 +1,35 @@
-# YOLO11‑OBB with Swin‑Tiny Backbone for 7‑Class Blood Cell Detection
-# Classes: Basophil, Neutrophil, Lymphocyte, Monocyte, Platelets, Eosinophil, RBC
+# ultralytics/cfg/models/11/yolov11swin_fuse.yaml
+nc: 7
 
-nc: 7  # number of classes
-
-scales:  # retained for parser
+scales:
   n: [0.50, 0.25, 1024]
   s: [0.50, 0.50, 1024]
   m: [0.50, 1.00, 512]
   l: [1.00, 1.00, 512]
   x: [1.00, 1.50, 512]
 
-# 1) Swin‑Tiny backbone
 backbone:
-  - [-1, 1, SwinTinyBackbone, []]  # outputs three feature maps: P3→node0, P4→node1, P5→node2
+  # Swin‑Tiny returns three feature maps → nodes 0,1,2
+  - [-1, 1, SwinTinyBackbone, []]
+  # Fuse them into a single tensor via concatenation along channels
+  - [[0, 1, 2], 1, Concat, [1]]
+  # Reduce channels to 512 for the Detect head
+  - [-1, 1, Conv, [512, 1, 1]]
 
-# 2) Head: directly run oriented‑bbox detection on all three scales
 head:
-  - [[0, 1, 2], 1, OBB, [nc, 1]]   # feed P3,P4,P5 into OBB head; predicts [x,y,w,h,angle] + class scores
+  # Run Detect on that single fused feature map
+  - [[3], 1, Detect, [nc, [512]]]
 
-# 3) Detection config (anchors + NMS + loss weights)
 detection_config:
   anchors:
-    - [8, 10, 13, 16, 25, 33]        # P3/8 – platelets
-    - [23, 30, 39, 52, 61, 45]       # P4/16 – RBCs & eosinophils
-    - [59, 119, 116, 90, 156, 198]   # P5/32 – larger WBCs
-
+    - [8, 10, 13, 16, 25, 33]
+    - [23, 30, 39, 52, 61, 45]
+    - [59, 119, 116, 90, 156, 198]
   loss_weights:
     box: 7.5
     cls: 0.75
     dfl: 1.5
-
   nms:
     iou_threshold: 0.6
     conf_threshold: 0.20
     max_detections: 1500
-
